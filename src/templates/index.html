@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Salary Portal</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+    :root {
+      --bg: #07111f;
+      --bg-soft: #0d1a2e;
+      --panel: rgba(11, 22, 38, 0.76);
+      --panel-strong: #0f1d33;
+      --text: #e9f0ff;
+      --muted: #91a4c0;
+      --line: rgba(161, 180, 209, 0.14);
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --accent-3: #f97316;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Manrope', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 28%),
+        radial-gradient(circle at 85% 15%, rgba(249, 115, 22, 0.16), transparent 24%),
+        linear-gradient(160deg, #050b14 0%, var(--bg) 50%, #091427 100%);
+      min-height: 100vh;
+    }
+
+    [v-cloak] {
+      display: none;
+    }
+
+    .shell {
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .shell::before,
+    .shell::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      filter: blur(18px);
+      opacity: 0.18;
+      pointer-events: none;
+      animation: float 12s ease-in-out infinite;
+    }
+
+    .shell::before {
+      top: -120px;
+      right: -90px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.9), rgba(34, 197, 94, 0.3));
+    }
+
+    .shell::after {
+      bottom: -140px;
+      left: -100px;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.85), rgba(56, 189, 248, 0.24));
+      animation-delay: -4s;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: none;
+      width: 100%;
+      margin: 0;
+      padding: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 14px;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, rgba(56, 189, 248, 0.95), rgba(34, 197, 94, 0.9));
+      color: #04111f;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      box-shadow: 0 16px 40px rgba(56, 189, 248, 0.26);
+    }
+
+    .brand-copy h1,
+    .section-title {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-copy h1 {
+      font-size: clamp(1.6rem, 2vw, 2.15rem);
+    }
+
+    .brand-copy p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .topbar-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 0.93rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .hero-card,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(13, 26, 46, 0.92), rgba(9, 17, 31, 0.92));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-card {
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -90px auto;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.24), transparent 68%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      background: rgba(56, 189, 248, 0.08);
+      color: #bae6fd;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-title {
+      margin: 12px 0 10px;
+      max-width: 13ch;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.5rem, 4.4vw, 4.7rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-copy {
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .portal-layout {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 18px;
+      animation: fadeUp 0.9s ease both;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .panel-header p,
+    .hint,
+    .field-help,
+    .result-muted {
+      color: var(--muted);
+    }
+
+    .section-title {
+      font-size: 1.28rem;
+      margin-bottom: 6px;
+    }
+
+    .pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      color: #d7f3ff;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 0.92rem;
+      color: #d9e6f8;
+      font-weight: 700;
+    }
+
+    .control,
+    .control-input,
+    .control-select,
+    .control-range {
+      width: 100%;
+      border: 1px solid rgba(161, 180, 209, 0.2);
+      background: rgba(7, 17, 31, 0.92);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .control:focus,
+    .control-input:focus,
+    .control-select:focus,
+    .control-range:focus {
+      border-color: rgba(56, 189, 248, 0.75);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
+    }
+
+    .control-select {
+      appearance: none;
+      padding-right: 42px;
+      background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position: calc(100% - 20px) calc(50% + 2px), calc(100% - 14px) calc(50% + 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .inline-row {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .radio-chip {
+      flex: 1 1 130px;
+      min-width: 130px;
+      border-radius: 16px;
+      border: 1px solid rgba(161, 180, 209, 0.18);
+      background: rgba(7, 17, 31, 0.9);
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+    }
+
+    .radio-chip input {
+      accent-color: var(--accent);
+    }
+
+    .radio-chip.is-active {
+      border-color: rgba(56, 189, 248, 0.72);
+      background: rgba(56, 189, 248, 0.09);
+      transform: translateY(-1px);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    .button.primary {
+      color: #04111f;
+      background: linear-gradient(135deg, #67e8f9, #34d399);
+      box-shadow: 0 18px 40px rgba(52, 211, 153, 0.18);
+    }
+
+    .button.secondary {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(161, 180, 209, 0.14);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      cursor: progress;
+      transform: none;
+    }
+
+    .result-card {
+      position: sticky;
+      top: 12px;
+      overflow: hidden;
+    }
+
+    .result-shell {
+      display: grid;
+      gap: 10px;
+    }
+
+    .result-figure {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border-radius: 22px;
+      background: linear-gradient(145deg, rgba(56, 189, 248, 0.12), rgba(34, 197, 94, 0.08));
+      border: 1px solid rgba(56, 189, 248, 0.16);
+    }
+
+    .result-label {
+      font-size: 0.9rem;
+      color: #c8ddff;
+      letter-spacing: 0.02em;
+    }
+
+    .result-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.1rem, 4vw, 3.4rem);
+      line-height: 1;
+      margin: 0;
+    }
+
+    .result-value.positive {
+      color: #86efac;
+    }
+
+    .result-value.negative {
+      color: #fda4af;
+    }
+
+    .meter {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(148, 163, 184, 0.14);
+    }
+
+    .meter > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #67e8f9, #34d399);
+      transition: width 0.35s ease;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 4px;
+      margin: 0;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(161, 180, 209, 0.1);
+      font-size: 0.95rem;
+    }
+
+    .summary-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .summary-item span {
+      color: var(--muted);
+    }
+
+    .summary-item strong {
+      text-align: right;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .error-box,
+    .note-box {
+      border-radius: 18px;
+      padding: 12px 14px;
+      border: 1px solid;
+      line-height: 1.6;
+    }
+
+    .error-box {
+      color: #fecdd3;
+      border-color: rgba(248, 113, 113, 0.22);
+      background: rgba(248, 113, 113, 0.08);
+    }
+
+    .note-box {
+      color: #d8f7ee;
+      border-color: rgba(34, 197, 94, 0.18);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .hint,
+    .field-help,
+    .result-muted {
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes float {
+      0%,
+      100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(16px) scale(1.04); }
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .portal-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .result-card {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        padding: 0;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero-card,
+      .panel {
+        padding: 16px;
+        border-radius: 20px;
+      }
+
+      .form-grid,
+      .stats,
+      .inline-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    window.__INITIAL_STATE__ = {{ initial_state | tojson }};
+  </script>
+  {% raw %}
+  <div id="app" class="shell" v-cloak>
+    <div class="container">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">S</div>
+          <div class="brand-copy">
+            <h1>Salary Signal Portal</h1>
+            <p>Vue-powered employee salary prediction studio</p>
+          </div>
+        </div>
+        <div class="topbar-badge">
+          <span>Model ready</span>
+          <strong>{{ featureCount }} features</strong>
+        </div>
+      </header>
+
+      <div class="note-box" style="margin-bottom: 14px;">
+        The form predicts automatically on first load and on every click, so you do not need to hunt for a separate submit state.
+      </div>
+
+      <section class="hero">
+        <article class="hero-card">
+          <div class="eyebrow">Vue 3 + Flask prediction experience</div>
+          <h2 class="hero-title">A sharper portal for salary estimation.</h2>
+          <p class="hero-copy">
+            This interface uses real v-model bindings, a dark glassmorphism layout, and the trained salary model behind the scenes.
+            Fill in an employee profile, send it to the API, and get a prediction with confidence in one step.
+          </p>
+          <div class="stats">
+            <div class="stat">
+              <strong>{{ featureCount }}</strong>
+              <span>model inputs</span>
+            </div>
+            <div class="stat">
+              <strong>Live</strong>
+              <span>prediction feedback</span>
+            </div>
+            <div class="stat">
+              <strong>Vue</strong>
+              <span>component-driven form</span>
+            </div>
+          </div>
+        </article>
+
+        <aside class="panel result-card">
+          <div class="section-title">Model snapshot</div>
+          <p class="hint">The backend encodes each categorical field to match the trained RandomForest model exactly.</p>
+          <div class="result-shell" v-if="result">
+            <div class="result-figure">
+              <div class="result-label">Predicted salary band</div>
+              <p class="result-value" :class="resultIsPositive ? 'positive' : 'negative'">{{ result.prediction }}</p>
+              <div>
+                <div class="meter" aria-hidden="true"><span :style="{ width: result.confidencePercent + '%' }"></span></div>
+              </div>
+              <div class="result-muted">Confidence {{ result.confidencePercent.toFixed(2) }}%</div>
+            </div>
+
+            <div class="note-box">
+              {{ resultMessage }}
+            </div>
+
+            <div class="summary-list">
+              <div class="summary-item">
+                <span>Age</span>
+                <strong>{{ form.age }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Work profile</span>
+                <strong>{{ form.workclass }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Occupation</span>
+                <strong>{{ form.occupation }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Hours per week</span>
+                <strong>{{ form['hours-per-week'] }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="result-shell">
+            <div class="result-figure">
+              <div class="result-label">Ready to predict</div>
+              <p class="result-value">--</p>
+              <div class="result-muted">Submit the form to generate the first prediction.</div>
+            </div>
+            <div class="note-box">
+              Default values are populated from the dataset so you can test the portal immediately.
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="portal-layout">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="section-title">Employee profile</div>
+              <p>Use the fields below to simulate an employee record from the source dataset.</p>
+            </div>
+            <div class="pill">JSON API endpoint: /api/predict</div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="age">Age</label>
+              <input id="age" class="control-input" type="number" v-model.number="form.age" min="18" max="90" />
+              <div class="field-help">Applicant age in years.</div>
+            </div>
+
+            <div class="field">
+              <label for="hours-per-week">Hours per week</label>
+              <div class="inline-row">
+                <input id="hours-per-week" class="control-range" type="range" min="1" max="100" v-model.number="form['hours-per-week']" />
+                <input class="control-input" type="number" min="1" max="100" v-model.number="form['hours-per-week']" />
+              </div>
+              <div class="field-help">Weekly working hours: {{ form['hours-per-week'] }}.</div>
+            </div>
+
+            <div class="field">
+              <label for="capital-gain">Capital gain</label>
+              <input id="capital-gain" class="control-input" type="number" v-model.number="form['capital-gain']" min="0" />
+            </div>
+
+            <div class="field">
+              <label for="capital-loss">Capital loss</label>
+              <input id="capital-loss" class="control-input" type="number" v-model.number="form['capital-loss']" min="0" />
+            </div>
+
+            <div class="field" v-for="field in categoricalFields" :key="field" :class="{'full': field === 'native-country'}">
+              <label :for="field">{{ labelFor(field) }}</label>
+              <select :id="field" class="control-select" v-model="form[field]">
+                <option v-for="option in categoryOptions[field]" :key="option" :value="option">{{ option }}</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label>Gender</label>
+              <div class="radio-group">
+                <label class="radio-chip" :class="{ 'is-active': form.gender === 'Male' }">
+                  <input type="radio" value="Male" v-model="form.gender" />
+                  Male
+                </label>
+                <label class="radio-chip" :class="{ 'is-active': form.gender === 'Female' }">
+                  <input type="radio" value="Female" v-model="form.gender" />
+                  Female
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="button primary" :disabled="loading" @click="predict">{{ loading ? 'Predicting...' : 'Predict salary' }}</button>
+            <button class="button secondary" :disabled="loading" @click="resetForm">Reset to dataset defaults</button>
+          </div>
+
+          <div v-if="error" class="error-box" style="margin-top: 16px;">{{ error }}</div>
+          <div class="footer-note">The UI intentionally mirrors the dataset schema so the API and model stay in sync.</div>
+        </article>
+
+        <aside class="panel">
+          <div class="section-title">How it works</div>
+          <p class="hint">
+            Vue handles the interaction layer, while Flask loads the trained model and applies the same label encoding used during training.
+          </p>
+          <div class="summary-list" style="margin-top: 16px;">
+            <div class="summary-item">
+              <span>Model</span>
+              <strong>RandomForestClassifier</strong>
+            </div>
+            <div class="summary-item">
+              <span>Preprocessing</span>
+              <strong>LabelEncoder per categorical field</strong>
+            </div>
+            <div class="summary-item">
+              <span>Transport</span>
+              <strong>Same-origin JSON POST</strong>
+            </div>
+            <div class="summary-item">
+              <span>Layout</span>
+              <strong>Responsive glass cards</strong>
+            </div>
+          </div>
+          <div class="note-box" style="margin-top: 18px;">
+            The portal is designed to feel like a product dashboard, not a form dump: bold typography, clear hierarchy, and an immediate result panel.
+          </div>
+        </aside>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const initialState = window.__INITIAL_STATE__;
+
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          featureCount: initialState.featureCount,
+          categoryOptions: initialState.categoryOptions,
+          categoricalFields: initialState.featureCols.filter((field) => ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'native-country'].includes(field)),
+          form: {
+            ...initialState.defaultValues,
+          },
+          result: null,
+          error: '',
+          loading: false,
+        };
+      },
+      computed: {
+        resultIsPositive() {
+          return this.result && this.result.prediction === '>50K';
+        },
+        resultMessage() {
+          if (!this.result) {
+            return '';
+          }
+
+          return this.resultIsPositive
+            ? 'The model sees this profile as a higher-income candidate.'
+            : 'The model sees this profile as a lower-income candidate.';
+        },
+      },
+      methods: {
+        labelFor(field) {
+          return field
+            .split('-')
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+        },
+        async predict() {
+          this.loading = true;
+          this.error = '';
+
+          try {
+            const response = await fetch('/api/predict', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(this.form),
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok) {
+              throw new Error(payload.error || 'Prediction failed.');
+            }
+
+            this.result = payload;
+          } catch (err) {
+            this.result = null;
+            this.error = err.message;
+          } finally {
+            this.loading = false;
+          }
+        },
+        resetForm() {
+          this.form = { ...initialState.defaultValues };
+          this.error = '';
+          this.result = null;
+        },
+      },
+      mounted() {
+        this.predict();
+      },
+    }).mount('#app');
+  </script>
+  {% endraw %}
+</body>
+</html>
